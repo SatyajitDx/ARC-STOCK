@@ -25,7 +25,7 @@
             position: relative; padding: 20px; padding-bottom: 120px;
         }
 
-        /* Header Section */
+        /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .brand { display: flex; align-items: center; gap: 10px; }
         .arc-logo { 
@@ -37,7 +37,7 @@
         .app-logo span { color: var(--buy-green); }
         .btn-connect { 
             background: var(--accent-blue); color: white; padding: 8px 16px; 
-            border-radius: 12px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; 
+            border-radius: 12px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; 
         }
 
         /* Screens */
@@ -45,43 +45,44 @@
         .screen.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Home Screen UI */
+        /* Portfolio Card */
         .portfolio-card {
             background: linear-gradient(135deg, #ff4d6d, #ff85a1);
-            padding: 25px; border-radius: 28px; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(255, 77, 109, 0.2);
+            padding: 25px; border-radius: 28px; margin-bottom: 30px;
         }
         .portfolio-card h1 { font-size: 34px; margin: 8px 0; font-weight: 800; }
         .p-change { background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
 
-        .featured-scroll { display: flex; gap: 15px; overflow-x: auto; padding: 5px 0 20px; scrollbar-width: none; }
-        .featured-card { min-width: 170px; background: var(--card-bg); padding: 20px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+        /* Stock Cards */
+        .featured-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; }
+        .featured-scroll::-webkit-scrollbar { display: none; }
+        .featured-card { min-width: 170px; background: var(--card-bg); padding: 20px; border-radius: 24px; cursor: pointer; }
         .f-logo { width: 40px; height: 40px; border-radius: 50%; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
 
-        /* Watchlist UI */
+        /* Watchlist */
         .watchlist-item { background: var(--card-bg); padding: 18px; border-radius: 22px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .w-info { display: flex; align-items: center; gap: 14px; }
         .w-logo { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
-        .w-name p:first-child { font-weight: 700; font-size: 15px; }
-        .w-name p:last-child { color: var(--text-dim); font-size: 11px; }
 
-        /* Market / Buy Logic UI */
-        .market-header { margin-bottom: 20px; }
-        .chart-placeholder { height: 180px; background: linear-gradient(180deg, rgba(59,130,246,0.1), transparent); border-left: 3px solid var(--accent-blue); margin-bottom: 25px; border-radius: 0 0 0 10px; }
+        /* Market / Trading */
+        .chart-placeholder { height: 180px; background: linear-gradient(180deg, rgba(59,130,246,0.1), transparent); border-left: 3px solid var(--accent-blue); margin-bottom: 25px; }
         .trade-box { display: flex; gap: 12px; margin-top: 20px; }
-        .btn-trade { flex: 1; padding: 15px; border-radius: 16px; border: none; font-weight: 700; color: white; cursor: pointer; font-size: 14px; transition: 0.2s; }
-        .btn-trade:active { transform: scale(0.95); }
+        .btn-trade { flex: 1; padding: 15px; border-radius: 16px; border: none; font-weight: 700; color: white; cursor: pointer; }
         .btn-buy { background: var(--buy-green); }
         .btn-sell { background: var(--sell-red); }
 
-        /* Bottom Floating Nav */
+        /* Bottom Floating Nav with Names */
         .bottom-nav {
             position: fixed; bottom: 25px; width: calc(100% - 40px); max-width: 410px;
             background: rgba(255,255,255,0.08); backdrop-filter: blur(25px);
             border-radius: 40px; display: flex; justify-content: space-around; padding: 12px;
             border: 1px solid rgba(255,255,255,0.1); z-index: 1000;
         }
-        .nav-item { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.3s; color: var(--text-dim); }
-        .nav-item.active { background: white; color: black; box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.3s; color: var(--text-dim); }
+        .nav-icon-box { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 4px; }
+        .nav-text { font-size: 10px; font-weight: 700; }
+        .nav-item.active { color: white; }
+        .nav-item.active .nav-icon-box { background: white; color: black; box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
 
     </style>
 </head>
@@ -100,28 +101,23 @@
         <div id="home" class="screen active">
             <div class="portfolio-card">
                 <p>Your portfolio</p>
-                <h1 id="userPortfolio">₹8,15,590.90</h1>
+                <h1>₹8,15,590.90</h1>
                 <div class="p-change">↗ ₹12,205.50 (+1.76%)</div>
             </div>
 
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
-                <h3 style="font-size:16px;">Featured Investments</h3>
-                <span style="font-size:12px; color:var(--text-dim);">See all</span>
-            </div>
+            <h3 style="font-size:16px; margin-bottom:15px;">Featured Investments</h3>
             <div class="featured-scroll">
                 <div class="featured-card" onclick="openMarket('RELIANCE', 2985)">
                     <div class="f-logo" style="background: #e31e24;">R</div>
                     <p style="font-weight:700;">RELIANCE</p>
                     <p style="font-size:11px; color:var(--text-dim); margin-bottom:12px;">Reliance Industries</p>
                     <p style="font-weight:700;">₹2,985.40</p>
-                    <p style="color:var(--buy-green); font-size:11px;">▲ 3.25%</p>
                 </div>
                 <div class="featured-card" onclick="openMarket('HDFCBANK', 1532)">
                     <div class="f-logo" style="background: #00529b;">H</div>
                     <p style="font-weight:700;">HDFCBANK</p>
                     <p style="font-size:11px; color:var(--text-dim); margin-bottom:12px;">HDFC Bank Ltd</p>
                     <p style="font-weight:700;">₹1,532.15</p>
-                    <p style="color:var(--buy-green); font-size:11px;">▲ 5.25%</p>
                 </div>
             </div>
 
@@ -137,47 +133,52 @@
 
         <!-- MARKET SCREEN -->
         <div id="market" class="screen">
-            <div class="market-header">
-                <h2 id="mStockName">RELIANCE</h2>
-                <p id="mStockFull" style="color:var(--text-dim); font-size:12px;">RELIANCE.NS</p>
-            </div>
+            <h2 id="mStockName" style="margin-bottom:5px;">RELIANCE</h2>
             <div class="chart-placeholder">
-                <div style="padding:15px; background:white; color:black; display:inline-block; border-radius:10px; font-weight:700; margin-top:20px; margin-left:30%;">
+                <div style="padding:15px; background:white; color:black; display:inline-block; border-radius:10px; font-weight:700; margin-top:20px; margin-left:25%;">
                     <span id="mPrice">₹2,985.40</span>
-                    <span style="font-size:9px; color:var(--buy-green); display:block;">+0.42% Today</span>
                 </div>
             </div>
-            <p style="font-size:14px; font-weight:600; margin-bottom:10px;">Buy with Arc USDC</p>
-            <div class="card" style="background:var(--card-bg); padding:15px; border-radius:15px; display:flex; justify-content:space-between;">
+            <div class="card" style="background:var(--card-bg); padding:20px; border-radius:20px; display:flex; justify-content:space-between; margin-bottom:20px;">
                 <span style="color:var(--text-dim);">Est. USDC Cost:</span>
                 <span id="usdcCost" style="font-weight:700; color:var(--buy-green);">0.00 USDC</span>
             </div>
             <div class="trade-box">
-                <button class="btn-trade btn-buy" onclick="handleTrade('BUY')">BUY STOCK</button>
+                <button class="btn-trade btn-buy" onclick="handleTrade('BUY')">BUY WITH USDC</button>
                 <button class="btn-trade btn-sell" onclick="handleTrade('SELL')">SELL STOCK</button>
             </div>
         </div>
 
         <!-- ASSETS SCREEN -->
         <div id="portfolio" class="screen">
-            <h3 style="margin-bottom:20px;">My Holdings</h3>
-            <div id="holdingsList">
-                <p style="color:var(--text-dim); text-align:center;">No stocks yet. Start trading!</p>
+            <h3 style="margin-bottom:20px;">My Assets</h3>
+            <div class="watchlist-item">
+                <div class="w-info">
+                    <div class="w-logo" style="background: #e31e24;">R</div>
+                    <div class="w-name"><p>RELIANCE</p><p>10 Shares</p></div>
+                </div>
+                <div style="text-align:right;"><p>₹29,850</p><p style="color:var(--buy-green); font-size:11px;">+₹850</p></div>
             </div>
         </div>
 
-        <!-- BOTTOM NAV -->
+        <!-- BOTTOM NAV WITH NAMES -->
         <nav class="bottom-nav">
-            <div class="nav-item active" onclick="switchTab('home', this)">🏠</div>
-            <div class="nav-item" onclick="switchTab('market', this)">📊</div>
-            <div class="nav-item" onclick="switchTab('portfolio', this)">💼</div>
+            <div class="nav-item active" onclick="switchTab('home', this)">
+                <div class="nav-icon-box">🏠</div>
+                <span class="nav-text">Home</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('market', this)">
+                <div class="nav-icon-box">📊</div>
+                <span class="nav-text">Market</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('portfolio', this)">
+                <div class="nav-icon-box">💼</div>
+                <span class="nav-text">Portfolio</span>
+            </div>
         </nav>
     </div>
 
     <script>
-        let currentStock = { name: 'RELIANCE', price: 2985.40 };
-        const INR_TO_USDC = 84; // Mock conversion rate
-
         function switchTab(id, el) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -186,28 +187,19 @@
         }
 
         function openMarket(name, price) {
-            currentStock = { name, price };
             document.getElementById('mStockName').innerText = name;
             document.getElementById('mPrice').innerText = '₹' + price;
-            const usdc = (price / INR_TO_USDC).toFixed(2);
-            document.getElementById('usdcCost').innerText = usdc + ' USDC';
+            document.getElementById('usdcCost').innerText = (price / 84).toFixed(2) + ' USDC';
             switchTab('market', document.querySelectorAll('.nav-item')[1]);
         }
 
         function handleTrade(type) {
-            const cost = (currentStock.price / INR_TO_USDC).toFixed(2);
-            if(type === 'BUY') {
-                alert(`Transaction initiated on Arc Network! \nPaying ${cost} USDC for 1 Share of ${currentStock.name}. \nCheck your wallet for confirmation. 🚀`);
-            } else {
-                alert(`Selling 1 Share of ${currentStock.name} for ${currentStock.price} INR. \nFunds will be credited to your Arc Wallet. 📉`);
-            }
+            alert(type + " Order Placed! Processing USDC payment on Arc Network... 🚀");
         }
 
         function connect() {
-            const btn = document.getElementById('walletBtn');
-            btn.innerText = "0xArc...7f2";
-            btn.style.background = "#10b981";
-            alert("Connected to Arc Testnet! Your USDC balance is ready for trading. 🔗");
+            document.getElementById('walletBtn').innerText = "0xArc...7f2";
+            alert("Connected to Arc Wallet! Balance: 5,000 USDC");
         }
     </script>
 </body>
