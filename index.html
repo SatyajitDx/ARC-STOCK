@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>IndiStock | Decentralized Indian Equity</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
     <style>
         :root {
             --app-bg: #0f121a; --card-bg: #1a1f2e; --accent-blue: #3b82f6;
@@ -16,68 +16,50 @@
         body { background-color: #000; color: var(--text-white); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
         .app-container { width: 100%; max-width: 450px; background: var(--app-bg); min-height: 100vh; position: relative; padding: 20px; padding-bottom: 120px; }
 
-        /* Header Fix */
+        /* Header & Dropdown CSS */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; height: 60px; }
         .brand { display: flex; align-items: center; gap: 8px; }
         .arc-logo { width: 28px; height: 28px; background: var(--arc-gradient); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; }
         .app-logo { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; text-transform: uppercase; }
         .app-logo span { color: var(--buy-green); }
         
-        /* Glass Button & Dropdown Styles */
+        .relative { position: relative; }
         .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; cursor: pointer; }
-        .dropdown-menu { 
-            display: none; position: absolute; right: 0; top: 45px; 
-            background: white; min-width: 160px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
-            border-radius: 12px; z-index: 1000; overflow: hidden; 
-        }
-        .dropdown-menu.show { display: block !important; }
-        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 45px; background: white; min-width: 160px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-radius: 12px; z-index: 1000; overflow: hidden; }
+        .dropdown-menu.show { display: block; }
+        
+        .bg-red-500 { background: #ef4444; }
+        .bg-green-500 { background: #22c55e; }
+        .animate-pulse { animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-        .bg-red-500 { background-color: #ef4444; }
-        .bg-green-500 { background-color: #22c55e; }
-        .rounded-full { border-radius: 9999px; }
 
-        /* Screens & Layout */
+        /* Other UI Styles */
         .screen { display: none; }
-        .screen.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .screen.active { display: block; }
         .portfolio-main { background: linear-gradient(135deg, #ff4d6d, #ff85a1); padding: 25px; border-radius: 28px; margin-bottom: 25px; }
-        .portfolio-main h1 { font-size: 32px; font-weight: 800; margin: 5px 0; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 15px; }
-        .featured-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; }
-        .featured-card { min-width: 165px; background: var(--card-bg); padding: 20px; border-radius: 24px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
         .trade-card { background: var(--card-bg); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 25px; }
-        .input-box { margin-bottom: 15px; }
-        .input-box label { display: block; font-size: 10px; color: var(--text-dim); margin-bottom: 6px; font-weight: 700; text-transform: uppercase; }
-        .input-box select, .input-box input { width: 100%; padding: 12px 15px; background: #000; border: 1px solid var(--border); border-radius: 12px; color: white; font-weight: 600; outline: none; }
-        .calc-row { display: flex; justify-content: space-between; padding: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; }
         .btn-container { display: flex; gap: 10px; }
-        .trade-btn { flex: 1; padding: 16px; border-radius: 14px; border: none; font-weight: 800; cursor: pointer; color: white; }
+        .trade-btn { flex: 1; padding: 16px; border-radius: 14px; border: none; font-weight: 800; color: white; cursor: pointer; }
         .btn-buy { background: var(--buy-green); }
         .btn-sell { background: var(--sell-red); }
         .watchlist-item { background: var(--card-bg); padding: 18px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; }
-        .bottom-nav { position: fixed; bottom: 20px; width: calc(100% - 40px); max-width: 410px; background: rgba(20, 25, 40, 0.95); backdrop-filter: blur(20px); border-radius: 35px; display: flex; justify-content: space-around; padding: 12px; border: 1px solid rgba(255,255,255,0.05); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-dim); flex: 1; }
+        .bottom-nav { position: fixed; bottom: 20px; width: calc(100% - 40px); max-width: 410px; background: rgba(20, 25, 40, 0.95); border-radius: 35px; display: flex; justify-content: space-around; padding: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-dim); }
         .nav-item.active { color: white; }
     </style>
 </head>
 <body>
     <div class="app-container">
         <header class="header">
-            <div class="brand">
-                <div class="arc-logo">A</div>
-                <div class="app-logo">INDI<span>STOCK</span></div>
-            </div>
-            
-            <!-- CONNECT WALLET DROPDRDOWN ADDED HERE -->
-            <div style="position: relative;">
-                <button id="walletBtn" onclick="toggleProfile()" class="glass" style="padding: 8px 16px; display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase;">
-                    <span id="dot" class="bg-red-500 animate-pulse" style="width: 8px; height: 8px; border-radius: 50%;"></span>
+            <div class="brand"><div class="arc-logo">A</div><div class="app-logo">INDI<span>STOCK</span></div></div>
+            <div class="relative">
+                <button id="walletBtn" onclick="toggleProfile()" class="glass py-2 px-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-tighter">
+                    <span id="dot" class="bg-red-500 w-2 h-2 rounded-full animate-pulse"></span>
                     <span id="walletLabel">Connect Wallet</span>
                 </button>
                 <div id="profileMenu" class="dropdown-menu">
-                    <button onclick="copyAddr()" style="width: 100%; text-align: left; padding: 12px 16px; border: none; background: none; border-bottom: 1px solid #eee; font-weight: 700; font-size: 12px; cursor: pointer;">Copy Address</button>
-                    <button onclick="disconnectWallet()" style="width: 100%; text-align: left; padding: 12px 16px; border: none; background: none; color: #ef4444; font-weight: 700; font-size: 12px; cursor: pointer;">Disconnect</button>
+                    <button onclick="copyAddr()" style="width:100%; text-align:left; padding:12px 16px; border:none; background:none; border-bottom:1px solid #eee; font-weight:700; font-size:12px; cursor:pointer;">Copy Address</button>
+                    <button onclick="disconnectWallet()" style="width:100%; text-align:left; padding:12px 16px; border:none; background:none; color:#ef4444; font-weight:700; font-size:12px; cursor:pointer;">Disconnect</button>
                 </div>
             </div>
         </header>
@@ -86,39 +68,30 @@
             <div class="portfolio-main">
                 <p style="font-size:12px; opacity:0.8;">Your portfolio balance</p>
                 <h1 id="userPortfolio">₹0.00</h1>
-                <p>↗ ₹0.00 (+0.00%)</p>
             </div>
-            <div class="section-header"><h3>Featured Investments</h3></div>
-            <div class="featured-scroll" id="featuredList"></div>
-            <div class="section-header"><h3>My Watchlist</h3></div>
+            <div id="featuredList" class="featured-scroll"></div>
             <div id="homeWatchlist"></div>
         </div>
 
         <div id="market" class="screen">
             <div class="trade-card">
-                <div class="input-box"><label>Select Stock</label><select id="stockSelect"></select></div>
-                <div class="input-box"><label>Quantity</label><input type="number" id="tradeQty" value="1" min="1"></div>
+                <select id="stockSelect" style="width:100%; padding:12px; background:#000; color:#fff; border-radius:12px; margin-bottom:15px;"></select>
+                <input type="number" id="tradeQty" value="1" style="width:100%; padding:12px; background:#000; color:#fff; border-radius:12px; margin-bottom:15px;">
                 <div class="calc-row">
-                    <div><p>EST. INR</p><h4 id="calcInr">₹0</h4></div>
-                    <div style="text-align:right;"><p>PAY USDC</p><h4 id="calcUsdc" style="color:var(--buy-green);">0.00 USDC</h4></div>
+                    <p id="calcInr">₹0</p>
+                    <p id="calcUsdc" style="color:var(--buy-green);">0.00 USDC</p>
                 </div>
                 <div class="btn-container">
-                    <button class="trade-btn btn-buy" id="buyBtn">BUY</button>
-                    <button class="trade-btn btn-sell" id="sellBtn">SELL</button>
+                    <button id="buyBtn" class="trade-btn btn-buy">BUY</button>
+                    <button id="sellBtn" class="trade-btn btn-sell">SELL</button>
                 </div>
             </div>
-            <h3>Market Overview</h3>
             <div id="marketList"></div>
         </div>
 
-        <div id="portfolio" class="screen"><h3>My Assets</h3></div>
-        <div id="history" class="screen"><h3>History</h3></div>
-
         <nav class="bottom-nav">
-            <div class="nav-item active" data-tab="home"><div class="nav-icon">🏠</div><div class="nav-text">Home</div></div>
-            <div class="nav-item" data-tab="market"><div class="nav-icon">📈</div><div class="nav-text">Market</div></div>
-            <div class="nav-item" data-tab="portfolio"><div class="nav-icon">💼</div><div class="nav-text">Portfolio</div></div>
-            <div class="nav-item" data-tab="history"><div class="nav-icon">📜</div><div class="nav-text">History</div></div>
+            <div class="nav-item active" data-tab="home">🏠<p style="font-size:9px;">Home</p></div>
+            <div class="nav-item" data-tab="market">📈<p style="font-size:9px;">Market</p></div>
         </nav>
     </div>
     <script src="app.js"></script>
