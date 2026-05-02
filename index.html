@@ -18,7 +18,7 @@
 
         .app-container { width: 100%; max-width: 450px; background: var(--app-bg); min-height: 100vh; position: relative; padding: 20px; padding-bottom: 120px; }
 
-        /* Header Updated with Wallet Container */
+        /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .brand { display: flex; align-items: center; gap: 8px; }
         .arc-logo { width: 28px; height: 28px; background: var(--arc-gradient); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; }
@@ -40,7 +40,7 @@
         .featured-card { min-width: 165px; background: var(--card-bg); padding: 20px; border-radius: 24px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
         .f-logo { width: 35px; height: 35px; border-radius: 50%; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
 
-        /* Trading Card (Market) */
+        /* Market Page UI */
         .trade-card { background: var(--card-bg); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .input-box { margin-bottom: 15px; }
         .input-box label { display: block; font-size: 10px; color: var(--text-dim); margin-bottom: 6px; font-weight: 700; text-transform: uppercase; }
@@ -73,12 +73,13 @@
 <body>
 
     <div class="app-container">
-        <!-- Brand Header with Wallet Container for Disconnect Button -->
+        <!-- Header Section -->
         <header class="header">
             <div class="brand">
                 <div class="arc-logo">A</div>
                 <div class="app-logo">INDI<span>STOCK</span></div>
             </div>
+            <!-- Wallet Container -->
             <div id="walletContainer" style="display: flex; flex-direction: column; align-items: flex-end;">
                 <button class="btn-connect" id="walletBtn" onclick="connect()">Connect Wallet</button>
             </div>
@@ -190,19 +191,11 @@
             });
         }
 
-        function goToTrade(price) {
-            switchTab('market', document.querySelectorAll('.nav-item')[1]);
-            document.getElementById('stockSelect').value = price;
-            updateCalc();
-        }
-
-        // Updated Connect UI with Disconnect logic
         async function connect() {
             if(!window.ethereum) return alert("Install Metamask");
             try {
                 const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
                 
-                // Switch chain logic
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
@@ -236,6 +229,7 @@
             userAddr = ""; provider = null; signer = null;
             updateWalletUI(false);
             document.getElementById("userPortfolio").innerText = "₹0.00";
+            alert("Wallet Disconnected");
         }
 
         function updateWalletUI(isConnected) {
@@ -245,6 +239,7 @@
             if (oldDsc) oldDsc.remove();
 
             if (isConnected) {
+                // Formatting: 0x + first 2 chars ... last 5 chars
                 walletBtn.innerText = userAddr.substring(0,4) + "..." + userAddr.slice(-5).toUpperCase();
                 walletBtn.style.background = "var(--buy-green)";
                 walletBtn.onclick = null;
@@ -260,6 +255,12 @@
                 walletBtn.style.background = "var(--accent-blue)";
                 walletBtn.onclick = connect;
             }
+        }
+
+        function goToTrade(price) {
+            switchTab('market', document.querySelectorAll('.nav-item')[1]);
+            document.getElementById('stockSelect').value = price;
+            updateCalc();
         }
 
         function updateCalc() {
@@ -292,10 +293,12 @@
 
         async function fetchBalance() {
             if(!userAddr) return;
-            const contract = new ethers.Contract(USDC_ADDR, ["function balanceOf(address) view returns (uint256)"], provider);
-            const bal = await contract.balanceOf(userAddr);
-            const f = ethers.utils.formatUnits(bal, 6);
-            document.getElementById("userPortfolio").innerText = "₹" + (f * INR_RATE).toLocaleString('en-IN');
+            try {
+                const contract = new ethers.Contract(USDC_ADDR, ["function balanceOf(address) view returns (uint256)"], provider);
+                const bal = await contract.balanceOf(userAddr);
+                const f = ethers.utils.formatUnits(bal, 6);
+                document.getElementById("userPortfolio").innerText = "₹" + (f * INR_RATE).toLocaleString('en-IN');
+            } catch(e) { console.error(e); }
         }
 
         window.onload = init;
