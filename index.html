@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ArcStock Pro | Decentralized Trading</title>
+    <title>IndiStock | Decentralized Indian Equity</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
     <style>
@@ -18,11 +18,12 @@
 
         .app-container { width: 100%; max-width: 450px; background: var(--app-bg); min-height: 100vh; position: relative; padding: 20px; padding-bottom: 120px; }
 
-        /* Header */
+        /* Header Updated to INDISTOCK */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .brand { display: flex; align-items: center; gap: 8px; }
         .arc-logo { width: 28px; height: 28px; background: var(--arc-gradient); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; }
-        .app-logo { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+        .app-logo { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; text-transform: uppercase; }
+        .app-logo span { color: var(--buy-green); }
         .btn-connect { background: var(--accent-blue); color: white; padding: 8px 16px; border-radius: 12px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; }
 
         /* Screens */
@@ -58,7 +59,6 @@
         .watchlist-item { background: var(--card-bg); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
         .w-info { display: flex; align-items: center; gap: 12px; }
         .w-logo { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
-        .w-name p:last-child { font-size: 10px; color: var(--text-dim); }
 
         /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 20px; width: calc(100% - 40px); max-width: 410px; background: rgba(20, 25, 40, 0.95); backdrop-filter: blur(20px); border-radius: 35px; display: flex; justify-content: space-around; padding: 12px; border: 1px solid rgba(255,255,255,0.05); }
@@ -71,8 +71,12 @@
 <body>
 
     <div class="app-container">
+        <!-- Brand Header with ARC Logo and INDISTOCK name -->
         <header class="header">
-            <div class="brand"><div class="arc-logo">A</div><div class="app-logo">ARC<span>STOCK</span></div></div>
+            <div class="brand">
+                <div class="arc-logo">A</div>
+                <div class="app-logo">INDI<span>STOCK</span></div>
+            </div>
             <button class="btn-connect" id="walletBtn" onclick="connect()">Connect Wallet</button>
         </header>
 
@@ -92,22 +96,17 @@
             </div>
 
             <div class="section-header"><h3>My Watchlist</h3><span style="font-size:12px; color:var(--text-dim);">See all</span></div>
-            <!-- Updated Watchlist with More Stocks -->
             <div class="watchlist-item" onclick="switchTab('market')">
-                <div class="w-info"><div class="w-logo" style="background:#ff8c00;">T</div><div class="w-name"><p>TATAMOTORS</p><p>Tata Motors Ltd</p></div></div>
+                <div class="w-info"><div class="w-logo" style="background:#ff8c00;">T</div><div class="w-name"><p>TATAMOTORS</p><p style="font-size:10px; color:var(--text-dim);">Tata Motors Ltd</p></div></div>
                 <p style="font-weight:700;">₹1,012 <span style="color:var(--sell-red); font-size:10px;">-6.3%</span></p>
             </div>
             <div class="watchlist-item" onclick="switchTab('market')">
-                <div class="w-info"><div class="w-logo" style="background:#007cc3;">S</div><div class="w-name"><p>SBIN</p><p>State Bank of India</p></div></div>
+                <div class="w-info"><div class="w-logo" style="background:#007cc3;">S</div><div class="w-name"><p>SBIN</p><p style="font-size:10px; color:var(--text-dim);">State Bank of India</p></div></div>
                 <p style="font-weight:700;">₹825 <span style="color:var(--buy-green); font-size:10px;">+1.2%</span></p>
             </div>
             <div class="watchlist-item" onclick="switchTab('market')">
-                <div class="w-info"><div class="w-logo" style="background:#4b2b8d;">W</div><div class="w-name"><p>WIPRO</p><p>Wipro Limited</p></div></div>
+                <div class="w-info"><div class="w-logo" style="background:#4b2b8d;">W</div><div class="w-name"><p>WIPRO</p><p style="font-size:10px; color:var(--text-dim);">Wipro Limited</p></div></div>
                 <p style="font-weight:700;">₹455 <span style="color:var(--sell-red); font-size:10px;">-0.8%</span></p>
-            </div>
-            <div class="watchlist-item" onclick="switchTab('market')">
-                <div class="w-info"><div class="w-logo" style="background:#8b1a1a;">T</div><div class="w-name"><p>TITAN</p><p>Titan Company</p></div></div>
-                <p style="font-weight:700;">₹3,240 <span style="color:var(--buy-green); font-size:10px;">+2.5%</span></p>
             </div>
         </div>
 
@@ -117,11 +116,11 @@
                 <div class="input-box">
                     <label>Select Stock</label>
                     <select id="stockSelect" onchange="updateCalc()">
-                        <option value="2985">RELIANCE (₹2,985)</option>
-                        <option value="1532">HDFCBANK (₹1,532)</option>
-                        <option value="3945">TCS (₹3,945)</option>
-                        <option value="825">SBIN (₹825)</option>
-                        <option value="188">ZOMATO (₹188)</option>
+                        <option value="2985">RELIANCE</option>
+                        <option value="1532">HDFCBANK</option>
+                        <option value="3945">TCS</option>
+                        <option value="825">SBIN</option>
+                        <option value="188">ZOMATO</option>
                     </select>
                 </div>
                 <div class="input-box">
@@ -168,21 +167,6 @@
         const INR_RATE = 94.25;
         let userAddr = "", provider, signer;
 
-        const stocks = [
-            {n:"RELIANCE", p:2985}, {n:"HDFCBANK", p:1532}, {n:"TCS", p:3945}, {n:"INFY", p:1420}, {n:"SBIN", p:825},
-            {n:"ZOMATO", p:188}, {n:"ADANIENT", p:3120}, {n:"ITC", p:420}, {n:"WIPRO", p:455}, {n:"TITAN", p:3240}
-        ];
-
-        function init() {
-            const list = document.getElementById("marketList");
-            stocks.forEach(s => {
-                list.innerHTML += `<div class="watchlist-item">
-                    <div class="w-info"><div class="w-logo" style="background:#334155;">${s.n[0]}</div><p>${s.n}</p></div>
-                    <p>₹${s.p}</p>
-                </div>`;
-            });
-        }
-
         async function connect() {
             if(!window.ethereum) return alert("Install Metamask");
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -228,8 +212,6 @@
             const f = ethers.utils.formatUnits(bal, 6);
             document.getElementById("userPortfolio").innerText = "₹" + (f * INR_RATE).toLocaleString('en-IN');
         }
-
-        window.onload = init;
     </script>
 </body>
 </html>
