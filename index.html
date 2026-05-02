@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ArcStock Pro | Web3 Trading</title>
+    <title>ArcStock Pro | Decentralized Trading</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
     <style>
@@ -30,31 +30,39 @@
         .screen.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Home Page (Original Style) */
-        .portfolio-main { background: linear-gradient(135deg, #ff4d6d, #ff85a1); padding: 25px; border-radius: 28px; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(255, 77, 109, 0.2); }
+        /* Home Page - Original Style */
+        .portfolio-main { background: linear-gradient(135deg, #ff4d6d, #ff85a1); padding: 25px; border-radius: 28px; margin-bottom: 25px; }
         .portfolio-main h1 { font-size: 32px; font-weight: 800; margin: 5px 0; }
         
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 15px; }
         .featured-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; }
-        .featured-card { min-width: 170px; background: var(--card-bg); padding: 20px; border-radius: 24px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
+        .featured-card { min-width: 165px; background: var(--card-bg); padding: 20px; border-radius: 24px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
         .f-logo { width: 35px; height: 35px; border-radius: 50%; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
 
-        /* Market Trade Card */
-        .trade-card { background: var(--card-bg); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 25px; }
+        /* Market - Trade Card with BOTH Options */
+        .trade-card { background: var(--card-bg); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .input-box { margin-bottom: 15px; }
-        .input-box label { display: block; font-size: 10px; color: var(--text-dim); margin-bottom: 6px; font-weight: 700; }
+        .input-box label { display: block; font-size: 10px; color: var(--text-dim); margin-bottom: 6px; font-weight: 700; text-transform: uppercase; }
         .input-box select, .input-box input { width: 100%; padding: 12px 15px; background: #000; border: 1px solid var(--border); border-radius: 12px; color: white; font-weight: 600; outline: none; }
         
         .calc-row { display: flex; justify-content: space-between; padding: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; }
-        .trade-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; color: white; margin-bottom: 10px; }
+        .calc-item p { font-size: 10px; color: var(--text-dim); font-weight: 700; margin-bottom: 4px; }
+        .calc-item h4 { font-size: 14px; font-weight: 800; }
 
-        /* Lists */
+        .btn-container { display: flex; gap: 10px; }
+        .trade-btn { flex: 1; padding: 16px; border-radius: 14px; border: none; font-weight: 800; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-buy { background: var(--buy-green); }
+        .btn-sell { background: var(--sell-red); }
+        .trade-btn:active { transform: scale(0.95); }
+
+        /* List Items */
         .watchlist-item { background: var(--card-bg); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; cursor: pointer; }
         .w-info { display: flex; align-items: center; gap: 12px; }
+        .w-logo { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
 
         /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 20px; width: calc(100% - 40px); max-width: 410px; background: rgba(20, 25, 40, 0.95); backdrop-filter: blur(20px); border-radius: 35px; display: flex; justify-content: space-around; padding: 10px; border: 1px solid rgba(255,255,255,0.05); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-dim); flex: 1; }
+        .bottom-nav { position: fixed; bottom: 20px; width: calc(100% - 40px); max-width: 410px; background: rgba(20, 25, 40, 0.95); backdrop-filter: blur(20px); border-radius: 35px; display: flex; justify-content: space-around; padding: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-dim); flex: 1; transition: 0.3s; }
         .nav-item.active { color: white; }
         .nav-icon { font-size: 18px; margin-bottom: 2px; }
         .nav-text { font-size: 9px; font-weight: 700; }
@@ -68,10 +76,10 @@
             <button class="btn-connect" id="walletBtn" onclick="connect()">Connect Wallet</button>
         </header>
 
-        <!-- HOME SCREEN (RETAINED ORIGINAL DESIGN) -->
+        <!-- HOME SCREEN -->
         <div id="home" class="screen active">
             <div class="portfolio-main">
-                <p style="font-size:12px; opacity:0.8; font-weight:600;">Your portfolio balance</p>
+                <p style="font-size:12px; opacity:0.8; font-weight:600;">Portfolio Balance</p>
                 <h1 id="userPortfolio">₹0.00</h1>
                 <p style="font-size:11px; font-weight:700;">↗ ₹0.00 (+0.00%)</p>
             </div>
@@ -83,33 +91,52 @@
                 <div class="featured-card" onclick="switchTab('market')"><div class="f-logo" style="background:#00a1e1;">T</div><p>TCS</p><p style="font-weight:800;">₹3,945</p></div>
             </div>
 
-            <h3 style="margin:20px 0 15px;">My Watchlist</h3>
-            <div class="watchlist-item" onclick="switchTab('market')"><div class="w-info"><div class="w-logo" style="background:#ff8c00;">T</div><div class="w-name"><p>TATAMOTORS</p><p style="font-size:10px; color:var(--text-dim);">Tata Motors Ltd</p></div></div><p>₹1,012</p></div>
+            <div class="section-header"><h3>My Watchlist</h3><span style="font-size:12px; color:var(--text-dim);">See all</span></div>
+            <div class="watchlist-item" onclick="switchTab('market')">
+                <div class="w-info"><div class="w-logo" style="background:#ff8c00;">T</div><div class="w-name"><p>TATAMOTORS</p><p style="font-size:10px; color:var(--text-dim);">Tata Motors Ltd</p></div></div>
+                <p style="font-weight:700;">₹1,012 <span style="color:var(--sell-red); font-size:10px;">-6.3%</span></p>
+            </div>
         </div>
 
-        <!-- MARKET SCREEN (TRADING LOGIC) -->
+        <!-- MARKET SCREEN -->
         <div id="market" class="screen">
             <div class="trade-card">
-                <div class="input-box"><label>SELECT STOCK</label>
-                    <select id="stockSelect" onchange="updateCalc()"><option value="2985">RELIANCE</option><option value="1532">HDFCBANK</option><option value="3945">TCS</option></select>
+                <div class="input-box">
+                    <label>Select Stock</label>
+                    <select id="stockSelect" onchange="updateCalc()">
+                        <option value="2985">RELIANCE (₹2,985)</option>
+                        <option value="1532">HDFCBANK (₹1,532)</option>
+                        <option value="3945">TCS (₹3,945)</option>
+                        <option value="825">SBIN (₹825)</option>
+                        <option value="188">ZOMATO (₹188)</option>
+                    </select>
                 </div>
-                <div class="input-box"><label>QUANTITY</label><input type="number" id="tradeQty" value="1" min="1" oninput="updateCalc()"></div>
-                <div class="calc-row"><div><p>EST. INR</p><h4 id="calcInr">₹2,985</h4></div><div style="text-align:right;"><p>PAY USDC</p><h4 id="calcUsdc" style="color:var(--buy-green);">31.67 USDC</h4></div></div>
-                <button class="trade-btn" style="background:var(--buy-green);" onclick="processTrade('BUY')">BUY WITH METAMASK</button>
+                <div class="input-box">
+                    <label>Quantity</label>
+                    <input type="number" id="tradeQty" value="1" min="1" oninput="updateCalc()">
+                </div>
+                <div class="calc-row">
+                    <div class="calc-item"><p>EST. INR</p><h4 id="calcInr">₹2,985</h4></div>
+                    <div class="calc-item" style="text-align:right;"><p>PAY USDC</p><h4 id="calcUsdc" style="color:var(--buy-green);">31.67 USDC</h4></div>
+                </div>
+                <div class="btn-container">
+                    <button class="trade-btn btn-buy" onclick="processTrade('BUY')">BUY</button>
+                    <button class="trade-btn btn-sell" onclick="processTrade('SELL')">SELL</button>
+                </div>
             </div>
-            <h3 style="margin-bottom:15px;">Top Indian Stocks</h3>
+            <h3 style="margin-bottom:15px;">Market Overview</h3>
             <div id="marketList"></div>
         </div>
 
         <!-- PORTFOLIO SCREEN -->
         <div id="portfolio" class="screen">
-            <h3>Portfolio Assets</h3>
+            <h3>My Assets</h3>
             <div id="holdingsList" style="margin-top:20px;"></div>
         </div>
 
         <!-- HISTORY SCREEN -->
         <div id="history" class="screen">
-            <h3>Trade History</h3>
+            <h3>History</h3>
             <div id="txList" style="margin-top:20px;"></div>
         </div>
 
@@ -127,6 +154,21 @@
         const MERCHANT = "0x7a67f9b3BB918182Ad94182aC10f80F9619be81C";
         const INR_RATE = 94.25;
         let userAddr = "", provider, signer;
+
+        const stocks = [
+            {n:"RELIANCE", p:2985}, {n:"HDFCBANK", p:1532}, {n:"TCS", p:3945}, {n:"INFY", p:1420}, {n:"SBIN", p:825},
+            {n:"ZOMATO", p:188}, {n:"ADANIENT", p:3120}, {n:"ITC", p:420}, {n:"WIPRO", p:455}, {n:"TITAN", p:3240}
+        ];
+
+        function init() {
+            const list = document.getElementById("marketList");
+            stocks.forEach(s => {
+                list.innerHTML += `<div class="watchlist-item">
+                    <div class="w-info"><div class="w-logo" style="background:#334155;">${s.n[0]}</div><p>${s.n}</p></div>
+                    <p>₹${s.p}</p>
+                </div>`;
+            });
+        }
 
         async function connect() {
             if(!window.ethereum) return alert("Install Metamask");
@@ -152,10 +194,11 @@
                 const usdcAmt = document.getElementById("calcUsdc").innerText.split(' ')[0];
                 const contract = new ethers.Contract(USDC_ADDR, ["function transfer(address to, uint256 value) public returns (bool)"], signer);
                 const tx = await contract.transfer(MERCHANT, ethers.utils.parseUnits(usdcAmt, 6));
-                alert("Processing Payment...");
+                alert(`Order processing...`);
                 await tx.wait();
-                alert("Success! Portfolio Updated.");
-            } catch(e) { alert("Failed"); }
+                alert(`Transaction Confirmed! Stock ${type} completed.`);
+                fetchBalance();
+            } catch(e) { alert("Transaction Failed!"); }
         }
 
         function switchTab(id, el) {
@@ -172,6 +215,8 @@
             const f = ethers.utils.formatUnits(bal, 6);
             document.getElementById("userPortfolio").innerText = "₹" + (f * INR_RATE).toLocaleString('en-IN');
         }
+
+        window.onload = init;
     </script>
 </body>
 </html>
