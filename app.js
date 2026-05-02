@@ -1,6 +1,6 @@
 /**
- * ARC INDIPAY - OFFICIAL WEB3 LOGIC
- * Integrated with your Glass UI & Dropdown Menu
+ * ARC INDIPAY - FINAL FIXED LOGIC
+ * Aligned with your HTML structure
  */
 
 const USDC_ADDR = "0x3600000000000000000000000000000000000000";
@@ -11,9 +11,9 @@ const INR_RATE = 94.25;
 
 let userAddr = "", provider, signer;
 
-// --- WALLET CORE ---
+// --- WALLET CONNECT ---
 async function connect() {
-    if (!window.ethereum) return alert("Please install MetaMask!");
+    if (!window.ethereum) return alert("MetaMask not found!");
 
     try {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -43,20 +43,27 @@ async function connect() {
         provider = new ethers.providers.Web3Provider(window.ethereum);
         signer = provider.getSigner();
         
+        // Update UI immediately
         updateUI(true);
         fetchBalance();
+        console.log("Connected:", userAddr);
         
     } catch (e) {
         console.error("Connection failed", e);
     }
 }
 
+// --- DISCONNECT ---
 function disconnectWallet() {
     userAddr = "";
     provider = null;
     signer = null;
     updateUI(false);
-    toggleProfile(); // Close dropdown
+    
+    // Close the dropdown menu
+    const menu = document.getElementById("profileMenu");
+    if (menu) menu.classList.remove("show");
+    
     document.getElementById("usdcBal").innerText = "0.00";
     document.getElementById("inrBal").innerText = "0.00";
 }
@@ -65,24 +72,29 @@ function disconnectWallet() {
 function updateUI(isConnected) {
     const label = document.getElementById("walletLabel");
     const dot = document.getElementById("dot");
-    const menu = document.getElementById("profileMenu");
 
     if (isConnected) {
-        // Formatted Address: Prefix + last 5 characters
+        // Formatted Address: 0x... + last 5 chars
         const displayAddr = userAddr.substring(0, 4) + "..." + userAddr.slice(-5).toUpperCase();
         label.innerText = displayAddr;
-        dot.classList.replace("bg-red-500", "bg-green-500");
+        
+        // Green dot for active connection
+        dot.classList.remove("bg-red-500");
+        dot.classList.add("bg-green-500");
     } else {
         label.innerText = "Connect Wallet";
-        dot.classList.replace("bg-green-500", "bg-red-500");
+        dot.classList.remove("bg-green-500");
+        dot.classList.add("bg-red-500");
     }
 }
 
+// Fixed toggle logic
 function toggleProfile() {
-    if(!userAddr) {
+    if (!userAddr) {
         connect();
     } else {
-        document.getElementById("profileMenu").classList.toggle("show");
+        const menu = document.getElementById("profileMenu");
+        menu.classList.toggle("show");
     }
 }
 
@@ -97,26 +109,15 @@ async function fetchBalance() {
         document.getElementById("usdcBal").innerText = parseFloat(usdc).toFixed(2);
         document.getElementById("inrBal").innerText = (parseFloat(usdc) * INR_RATE).toLocaleString('en-IN');
     } catch (e) {
-        console.error(e);
+        console.error("Balance fetch failed", e);
     }
 }
 
 function copyAddr() {
-    if(userAddr) {
+    if (userAddr) {
         navigator.clipboard.writeText(userAddr);
-        alert("Address Copied!");
-        toggleProfile();
-    }
-}
-
-// Close dropdown when clicking outside
-window.onclick = function(event) {
-    if (!event.target.closest('.relative')) {
-        const dropdowns = document.getElementsByClassName("dropdown-menu");
-        for (let i = 0; i < dropdowns.length; i++) {
-            if (dropdowns[i].classList.contains('show')) {
-                dropdowns[i].classList.remove('show');
-            }
-        }
+        alert("Copied!");
+        const menu = document.getElementById("profileMenu");
+        if (menu) menu.classList.remove("show");
     }
 }
