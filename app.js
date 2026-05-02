@@ -6,7 +6,6 @@ const INR_RATE = 94.25;
 
 let userAddr = "", provider, signer;
 
-// Stocks data matching your images
 const stocks = [
     {n:"RELIANCE", p:2985, c:"#e31e24", d:"Reliance Industries"}, 
     {n:"HDFCBANK", p:1532, c:"#00529b", d:"HDFC Bank Ltd"}, 
@@ -22,40 +21,35 @@ function init() {
     const homeWatchlist = document.getElementById("homeWatchlist");
     const stockSelect = document.getElementById("stockSelect");
 
+    // Dynamic UI Generation
     stocks.forEach((s, idx) => {
-        // Build Market Overview
-        marketList.innerHTML += `
-            <div class="watchlist-item" onclick="goToTrade('${s.p}', '${s.n}')">
+        if(marketList) marketList.innerHTML += `
+            <div class="watchlist-item" onclick="goToTrade('${s.p}')">
                 <div class="w-info"><div class="w-logo" style="background:${s.c};">${s.n[0]}</div><p>${s.n}</p></div>
                 <p>₹${s.p}</p>
             </div>`;
         
-        // Build Featured Scroll (First 3)
-        if(idx < 3) {
-            featuredList.innerHTML += `
-                <div class="featured-card" onclick="goToTrade('${s.p}', '${s.n}')">
-                    <div class="f-logo" style="background:${s.c};">${s.n[0]}</div>
-                    <p style="font-size:12px; font-weight:700;">${s.n}</p>
-                    <p style="font-weight:800;">₹${s.p}</p>
-                </div>`;
-        }
+        if(idx < 3 && featuredList) featuredList.innerHTML += `
+            <div class="featured-card" onclick="goToTrade('${s.p}')">
+                <div class="f-logo" style="background:${s.c};">${s.n[0]}</div>
+                <p style="font-size:12px; font-weight:700;">${s.n}</p>
+                <p style="font-weight:800;">₹${s.p}</p>
+            </div>`;
 
-        // Build Home Watchlist (Rest)
-        if(idx >= 3) {
-            homeWatchlist.innerHTML += `
-                <div class="watchlist-item" onclick="goToTrade('${s.p}', '${s.n}')">
-                    <div class="w-info"><div class="w-logo" style="background:${s.c};">${s.n[0]}</div>
-                    <div><p style="font-weight:700;">${s.n}</p><p style="font-size:10px; color:var(--text-dim);">${s.d}</p></div></div>
-                    <p>₹${s.p}</p>
-                </div>`;
-        }
+        if(idx >= 3 && homeWatchlist) homeWatchlist.innerHTML += `
+            <div class="watchlist-item" onclick="goToTrade('${s.p}')">
+                <div class="w-info"><div class="w-logo" style="background:${s.c};">${s.n[0]}</div>
+                <div><p style="font-weight:700;">${s.n}</p><p style="font-size:10px; color:var(--text-dim);">${s.d}</p></div></div>
+                <p>₹${s.p}</p>
+            </div>`;
 
-        // Build Dropdown
-        stockSelect.innerHTML += `<option value="${s.p}">${s.n}</option>`;
+        if(stockSelect) stockSelect.innerHTML += `<option value="${s.p}">${s.n}</option>`;
     });
 
-    // Listeners
-    document.getElementById("walletBtn").onclick = connect;
+    // CRITICAL: Linking the button correctly
+    const connBtn = document.getElementById("walletBtn");
+    if(connBtn) connBtn.onclick = connect;
+
     document.getElementById("stockSelect").onchange = updateCalc;
     document.getElementById("tradeQty").oninput = updateCalc;
     document.getElementById("buyBtn").onclick = () => processTrade('BUY');
@@ -72,6 +66,8 @@ async function connect() {
     if(!window.ethereum) return alert("Install Metamask");
     try {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        
+        // Auto-switch Network
         try {
             await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: ARC_CHAIN_ID }] });
         } catch (err) {
@@ -82,18 +78,13 @@ async function connect() {
                 });
             }
         }
+
         userAddr = accounts[0];
         provider = new ethers.providers.Web3Provider(window.ethereum);
         signer = provider.getSigner();
         updateWalletUI(true);
         fetchBalance();
     } catch(e) { console.error(e); }
-}
-
-function disconnect() {
-    userAddr = ""; provider = null; signer = null;
-    updateWalletUI(false);
-    document.getElementById("userPortfolio").innerText = "₹0.00";
 }
 
 function updateWalletUI(isConnected) {
@@ -103,15 +94,14 @@ function updateWalletUI(isConnected) {
     if (old) old.remove();
 
     if (isConnected) {
-        btn.innerText = userAddr.substring(0,4) + "..." + userAddr.slice(-5).toUpperCase();
+        btn.innerText = userAddr.substring(0,4) + "..." + userAddr.slice(-4).toUpperCase();
         btn.style.background = "var(--buy-green)";
         btn.onclick = null;
+        
         const dsc = document.createElement("button");
         dsc.id = "disconnectBtn"; dsc.innerText = "Disconnect";
-        dsc.onclick = disconnect; wrap.appendChild(dsc);
-    } else {
-        btn.innerText = "Connect Wallet"; btn.style.background = "var(--accent-blue)";
-        btn.onclick = connect;
+        dsc.onclick = () => { location.reload(); }; 
+        wrap.appendChild(dsc);
     }
 }
 
@@ -129,7 +119,7 @@ function switchTab(id, el) {
     el.classList.add('active');
 }
 
-function goToTrade(p, n) { 
+function goToTrade(p) { 
     switchTab('market', document.querySelector('[data-tab="market"]')); 
     document.getElementById('stockSelect').value = p; 
     updateCalc(); 
@@ -147,9 +137,7 @@ async function fetchBalance() {
 
 async function processTrade(type) {
     if(!userAddr) return connect();
-    const btn = event.target;
     try {
-        btn.innerText = "WAITING...";
         const amt = document.getElementById("calcUsdc").innerText.split(' ')[0];
         const contract = new ethers.Contract(USDC_ADDR, ["function transfer(address to, uint256 value) public returns (bool)"], signer);
         const tx = await contract.transfer(MERCHANT, ethers.utils.parseUnits(amt, 6));
@@ -157,7 +145,6 @@ async function processTrade(type) {
         alert(`Stock ${type} success!`);
         fetchBalance();
     } catch(e) { alert("Failed!"); }
-    finally { btn.innerText = type; }
 }
 
 window.onload = init;
