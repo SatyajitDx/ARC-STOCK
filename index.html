@@ -18,7 +18,7 @@
 
         .app-container { width: 100%; max-width: 450px; background: var(--app-bg); min-height: 100vh; position: relative; padding: 20px; padding-bottom: 120px; }
 
-        /* Header Updated to INDISTOCK */
+        /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .brand { display: flex; align-items: center; gap: 8px; }
         .arc-logo { width: 28px; height: 28px; background: var(--arc-gradient); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; }
@@ -31,7 +31,7 @@
         .screen.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Home Page */
+        /* Home Page Components */
         .portfolio-main { background: linear-gradient(135deg, #ff4d6d, #ff85a1); padding: 25px; border-radius: 28px; margin-bottom: 25px; }
         .portfolio-main h1 { font-size: 32px; font-weight: 800; margin: 5px 0; }
         
@@ -40,7 +40,7 @@
         .featured-card { min-width: 165px; background: var(--card-bg); padding: 20px; border-radius: 24px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
         .f-logo { width: 35px; height: 35px; border-radius: 50%; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
 
-        /* Market Card */
+        /* Trading Card (Market) */
         .trade-card { background: var(--card-bg); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .input-box { margin-bottom: 15px; }
         .input-box label { display: block; font-size: 10px; color: var(--text-dim); margin-bottom: 6px; font-weight: 700; text-transform: uppercase; }
@@ -56,9 +56,11 @@
         .btn-sell { background: var(--sell-red); }
 
         /* Watchlist Items */
-        .watchlist-item { background: var(--card-bg); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .watchlist-item { background: var(--card-bg); padding: 18px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
         .w-info { display: flex; align-items: center; gap: 12px; }
-        .w-logo { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
+        .w-logo { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; }
+        .w-name p:first-child { font-weight: 700; font-size: 14px; }
+        .w-name p:last-child { color: var(--text-dim); font-size: 10px; }
 
         /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 20px; width: calc(100% - 40px); max-width: 410px; background: rgba(20, 25, 40, 0.95); backdrop-filter: blur(20px); border-radius: 35px; display: flex; justify-content: space-around; padding: 12px; border: 1px solid rgba(255,255,255,0.05); }
@@ -71,7 +73,7 @@
 <body>
 
     <div class="app-container">
-        <!-- Brand Header with ARC Logo and INDISTOCK name -->
+        <!-- Brand Header -->
         <header class="header">
             <div class="brand">
                 <div class="arc-logo">A</div>
@@ -83,7 +85,7 @@
         <!-- HOME SCREEN -->
         <div id="home" class="screen active">
             <div class="portfolio-main">
-                <p style="font-size:12px; opacity:0.8; font-weight:600;">Portfolio Balance</p>
+                <p style="font-size:12px; opacity:0.8; font-weight:600;">Your portfolio balance</p>
                 <h1 id="userPortfolio">₹0.00</h1>
                 <p style="font-size:11px; font-weight:700;">↗ ₹0.00 (+0.00%)</p>
             </div>
@@ -96,16 +98,17 @@
             </div>
 
             <div class="section-header"><h3>My Watchlist</h3><span style="font-size:12px; color:var(--text-dim);">See all</span></div>
+            <!-- Corrected Watchlist -->
             <div class="watchlist-item" onclick="switchTab('market')">
-                <div class="w-info"><div class="w-logo" style="background:#ff8c00;">T</div><div class="w-name"><p>TATAMOTORS</p><p style="font-size:10px; color:var(--text-dim);">Tata Motors Ltd</p></div></div>
+                <div class="w-info"><div class="w-logo" style="background:#ff8c00;">T</div><div class="w-name"><p>TATAMOTORS</p><p>Tata Motors Ltd</p></div></div>
                 <p style="font-weight:700;">₹1,012 <span style="color:var(--sell-red); font-size:10px;">-6.3%</span></p>
             </div>
             <div class="watchlist-item" onclick="switchTab('market')">
-                <div class="w-info"><div class="w-logo" style="background:#007cc3;">S</div><div class="w-name"><p>SBIN</p><p style="font-size:10px; color:var(--text-dim);">State Bank of India</p></div></div>
+                <div class="w-info"><div class="w-logo" style="background:#007cc3;">S</div><div class="w-name"><p>SBIN</p><p>State Bank of India</p></div></div>
                 <p style="font-weight:700;">₹825 <span style="color:var(--buy-green); font-size:10px;">+1.2%</span></p>
             </div>
             <div class="watchlist-item" onclick="switchTab('market')">
-                <div class="w-info"><div class="w-logo" style="background:#4b2b8d;">W</div><div class="w-name"><p>WIPRO</p><p style="font-size:10px; color:var(--text-dim);">Wipro Limited</p></div></div>
+                <div class="w-info"><div class="w-logo" style="background:#4b2b8d;">W</div><div class="w-name"><p>WIPRO</p><p>Wipro Limited</p></div></div>
                 <p style="font-weight:700;">₹455 <span style="color:var(--sell-red); font-size:10px;">-0.8%</span></p>
             </div>
         </div>
@@ -136,7 +139,7 @@
                     <button class="trade-btn btn-sell" onclick="processTrade('SELL')">SELL</button>
                 </div>
             </div>
-            <h3 style="margin-bottom:15px;">Market Trends</h3>
+            <h3 style="margin-bottom:15px;">Market Overview</h3>
             <div id="marketList"></div>
         </div>
 
@@ -166,6 +169,21 @@
         const MERCHANT = "0x7a67f9b3BB918182Ad94182aC10f80F9619be81C";
         const INR_RATE = 94.25;
         let userAddr = "", provider, signer;
+
+        const stocks = [
+            {n:"RELIANCE", p:2985}, {n:"HDFCBANK", p:1532}, {n:"TCS", p:3945}, {n:"INFY", p:1420}, {n:"SBIN", p:825},
+            {n:"ZOMATO", p:188}, {n:"ADANIENT", p:3120}, {n:"ITC", p:420}, {n:"WIPRO", p:455}, {n:"TITAN", p:3240}
+        ];
+
+        function init() {
+            const list = document.getElementById("marketList");
+            stocks.forEach(s => {
+                list.innerHTML += `<div class="watchlist-item">
+                    <div class="w-info"><div class="w-logo" style="background:#334155;">${s.n[0]}</div><p>${s.n}</p></div>
+                    <p>₹${s.p}</p>
+                </div>`;
+            });
+        }
 
         async function connect() {
             if(!window.ethereum) return alert("Install Metamask");
@@ -212,6 +230,8 @@
             const f = ethers.utils.formatUnits(bal, 6);
             document.getElementById("userPortfolio").innerText = "₹" + (f * INR_RATE).toLocaleString('en-IN');
         }
+
+        window.onload = init;
     </script>
 </body>
 </html>
