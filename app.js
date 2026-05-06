@@ -1,102 +1,67 @@
 // --- CONFIGURATION ---
-const USDC_ADDR = "0x3600000000000000000000000000000000000000";
-const MERCHANT = "0x7a67f9b3BB918182Ad94182aC10f80F9619be81C";
-const INR_RATE = 94.25;
+const USDC_ADDR = "0x3600000000000000000000000000000000000000"; 
+const MERCHANT_ADDRESS = "0x7a67f9b3BB918182Ad94182aC10f80F9619be81C"; 
+const ARC_CHAIN_ID = '0x4cef52'; 
+const RPC_URL = 'https://rpc.testnet.arc.network';
+const INR_RATE = 94.25; 
 
-// Arc Testnet Details for Auto Switch
-const ARC_CHAIN_ID = '0x4cef52'; // Hex for Arc Testnet (315090)
-const ARC_RPC = 'https://rpc.testnet.arc.network';
+let userAddress = "", provider, signer, codeReader, currentService = "DIRECT";
 
-let userAddr = "", provider, signer;
+// --- INITIALIZE ON LOAD ---
+window.addEventListener('load', async () => {
+    if (window.ethereum && localStorage.getItem("isWalletConnected") === "true") {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        if (accounts.length > 0) setupWallet(accounts[0]);
+    }
+});
 
-// --- WALLET CONNECTION ---
-async function connect() {
-    if (!window.ethereum) return alert("Bhai, Pehle Metamask install kar!");
-
+// --- WALLET CORE ---
+async function connectWallet() {
+    if (!window.ethereum) {
+        window.location.href = "https://metamask.app.link/dapp/" + window.location.href.replace(/https?:\/\//, "");
+        return;
+    }
     try {
-        // 1. Request Accounts (Wallet Connect)
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        userAddr = accounts[0];
-
-        // 2. Auto Switch to Arc Chain
-        try {
-            await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: ARC_CHAIN_ID }],
-            });
-        } catch (switchError) {
-            // Agar chain Metamask mein nahi hai toh add karega
-            if (switchError.code === 4902) {
+        await window.ethereum.request({ 
+            method: 'wallet_switchEthereumChain', 
+            params: [{ chainId: ARC_CHAIN_ID }] 
+        }).catch(async (e) => {
+            if (e.code === 4902) {
                 await window.ethereum.request({
                     method: 'wallet_addEthereumChain',
                     params: [{
                         chainId: ARC_CHAIN_ID,
                         chainName: 'Arc Testnet',
-                        rpcUrls: [ARC_RPC],
+                        rpcUrls: [RPC_URL],
                         nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
                         blockExplorerUrls: ['https://testnet.arcscan.app']
                     }]
                 });
             }
-        }
-
-        // 3. Setup Ethers Provider
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-
-        // 4. UI UPDATE: Button par address dikhayega
-        updateUI();
-        
-        // 5. Balance check karega
-        fetchBalance();
-
-    } catch (error) {
-        console.error("Connection failed", error);
-    }
+        });
+        setupWallet(accounts[0]);
+    } catch (e) { console.error(e); }
 }
 
-// --- UI UPDATE FUNCTION ---
-function updateUI() {
-    const btn = document.getElementById("walletBtn");
-    const label = document.getElementById("walletLabel");
-    
-    if (userAddr) {
-        // Address ko chota karega: 0x1234...ABCD
-        const shortAddr = userAddr.substring(0, 6) + "..." + userAddr.substring(userAddr.length - 4);
-        
-        // Button ke andar ka text change karega
-        if (label) {
-            label.innerText = shortAddr;
-        } else {
-            btn.innerText = shortAddr;
-        }
-        
-        // Button ka style green kar dega connect hone par
-        btn.style.background = "#10b981"; 
-        console.log("Wallet Connected: " + userAddr);
-    }
+function setupWallet(addr) {
+    userAddress = addr;
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    document.getElementById("dot").className = "bg-green-500 w-2 h-2 rounded-full";
+    document.getElementById("walletLabel").innerText = addr.substring(0, 6) + "..." + addr.slice(-4).toUpperCase();
+    localStorage.setItem("isWalletConnected", "true");
+    fetchBalance();
 }
 
-// --- FETCH BALANCE ---
-async function fetchBalance() {
-    if(!userAddr) return;
-    try {
-        const contract = new ethers.Contract(USDC_ADDR, ["function balanceOf(address) view returns (uint256)"], provider);
-        const bal = await contract.balanceOf(userAddr);
-        const f = ethers.utils.formatUnits(bal, 6);
-        
-        // Home screen par balance update
-        const portfolioElem = document.getElementById("userPortfolio");
-        if (portfolioElem) {
-            portfolioElem.innerText = "₹" + (parseFloat(f) * INR_RATE).toLocaleString('en-IN');
-        }
-    } catch (e) {
-        console.error("Balance fetch error", e);
+// --- NEW: SMART VALIDATION MODAL TRIGGER ---
+function showValidationError(message) {
+    const validModal = document.getElementById('validModal');
+    const validText = document.getElementById('validText');
+    if (validModal && validText) {
+        validText.innerText = message.toUpperCase();
+        validModal.classList.remove('hidden');
+    } else {
+        alert(message); // Fallback agar modal missing ho
     }
 }
-
-// Initialize Market List (Jo tune pehle banaya tha)
-window.onload = () => {
-    // Agar tune init() function banaya hai toh yahan call kar le
-    if (typeof init === "function") init();
-};
