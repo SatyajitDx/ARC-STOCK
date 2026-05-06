@@ -28,6 +28,7 @@ let userAddress = "";
 let provider;
 let signer;
 let pendingTrade = null;
+let selectedPaymentMethod = "wallet";
 let appWalletUsdcBalance = Number(localStorage.getItem("appWalletUsdcBalance")) || 0;
 
 const stocks = [
@@ -293,6 +294,13 @@ function openTradeModal(type, stock, qty, inrAmount, usdcAmount) {
     document.getElementById("modalAmount").innerText = usdcAmount.toFixed(2) + " USDC";
     document.getElementById("modalDateTime").innerText = now;
 
+    selectedPaymentMethod = "wallet";
+    const paymentMethodBox = document.getElementById("paymentMethodBox");
+    if (paymentMethodBox) {
+        paymentMethodBox.classList.toggle("active", isBuy);
+    }
+    selectPaymentMethod("wallet");
+
     const confirmBtn = document.getElementById("modalConfirmBtn");
     confirmBtn.disabled = false;
     confirmBtn.innerText = isBuy ? "Buy Now" : "Sell Now";
@@ -307,6 +315,16 @@ function openTradeModal(type, stock, qty, inrAmount, usdcAmount) {
 function closeTradeModal() {
     document.getElementById("tradeModal").classList.add("hidden");
     pendingTrade = null;
+}
+
+function selectPaymentMethod(method) {
+    selectedPaymentMethod = method;
+
+    const walletBtn = document.getElementById("payWalletBtn");
+    const metamaskBtn = document.getElementById("payMetamaskBtn");
+
+    if (walletBtn) walletBtn.classList.toggle("active", method === "wallet");
+    if (metamaskBtn) metamaskBtn.classList.toggle("active", method === "metamask");
 }
 
 async function confirmPendingTrade() {
@@ -329,7 +347,40 @@ async function executeBuyStock(stock, qty, inrAmount, usdcAmount) {
     try {
         await loadEthers();
 
+        if (selectedPaymentMethod === "wallet") {
+            if (usdcAmount > appWalletUsdcBalance) {
+                resetTradeConfirmButton("BUY");
+                showValidationError("Insufficient app wallet balance");
+                return;
+            }
+
+            appWalletUsdcBalance -= usdcAmount;
+            saveAppWallet();
+
+            holdings[stock.n] = (holdings[stock.n] || 0) + qty;
+            saveHoldings();
+
+            addHistory({
+                type: "BUY",
+                stock: stock.n,
+                qty,
+                inrAmount,
+                usdcAmount,
+                txHash: "APP_WALLET_BUY",
+                date: new Date().toLocaleString()
+            });
+
+            renderHoldings();
+            renderHistory();
+            updatePortfolioValue();
+            updateAppWalletBalance();
+
+            showTradeSuccess("BUY", stock, qty, usdcAmount);
+            return;
+        }
+
         if (!signer) {
+            resetTradeConfirmButton("BUY");
             showValidationError("Wallet signer not ready");
             return;
         }
@@ -430,8 +481,31 @@ function showTradeSuccess(type, stock, qty, usdcAmount) {
     document.getElementById("modalAmount").innerText = usdcAmount.toFixed(2) + " USDC";
     document.getElementById("modalDateTime").innerText = new Date().toLocaleString("en-IN");
 
+    const paymentMethodBox = document.getElementById("paymentMethodBox");
+    if (paymentMethodBox) paymentMethodBox.classList.remove("active");
+
     document.getElementById("tradeModalActions").classList.add("hidden");
     document.getElementById("modalDoneBtn").classList.remove("hidden");
+}
+
+function showWalletSuccess(title, subtitle, label, detail, amountText) {
+    const icon = document.getElementById("tradeModalIcon");
+    icon.innerText = "✓";
+    icon.classList.remove("sell");
+
+    document.getElementById("tradeModalTitle").innerText = title;
+    document.getElementById("tradeModalSubtitle").innerText = subtitle;
+    document.getElementById("modalStockName").innerText = label;
+    document.getElementById("modalQty").innerText = detail;
+    document.getElementById("modalAmount").innerText = amountText;
+    document.getElementById("modalDateTime").innerText = new Date().toLocaleString("en-IN");
+
+    const paymentMethodBox = document.getElementById("paymentMethodBox");
+    if (paymentMethodBox) paymentMethodBox.classList.remove("active");
+
+    document.getElementById("tradeModalActions").classList.add("hidden");
+    document.getElementById("modalDoneBtn").classList.remove("hidden");
+    document.getElementById("tradeModal").classList.remove("hidden");
 }
 
 function resetTradeConfirmButton(type) {
@@ -522,32 +596,69 @@ function switchWalletPanel(panel) {
     withdrawBtn.classList.toggle("active", panel === "withdraw");
 }
 
-function depositDemo() {
-    const amount = Number(document.getElementById("depositUsdcAmount").value || 0);
+async function depositUsdc() {
+    try {
+        if (!userAddress) {
+            await connectWallet();
+            if (!userAddress) return;
+        }
 
-    if (!amount || amount <= 0) {
-        showValidationError("Enter valid USDC amount");
-        return;
+        await loadEthers();
+
+        const amount = Number(document.getElementById("depositUsdcAmount").value || 0);
+
+        if (!amount || amount <= 0) {
+            showValidationError("Enter valid USDC amount");
+            return;
+        }
+
+        if (!signer) {
+            showValidationError("Wallet signer not ready");
+            return;
+        }
+
+        const usdcContract = new ethers.Contract(
+            USDC_ADDR,
+            ["function transfer(address to, uint256 value) public returns (bool)"],
+            signer
+        );
+
+        const tx = await usdcContract.transfer(
+            MERCHANT_ADDRESS,
+            ethers.utils.parseUnits(amount.toFixed(6), 6)
+        );
+
+        await tx.wait();
+
+        appWalletUsdcBalance += amount;
+        saveAppWallet();
+
+        addHistory({
+            type: "DEPOSIT",
+            stock: "APP WALLET",
+            qty: 1,
+            inrAmount: amount * INR_RATE,
+            usdcAmount: amount,
+            txHash: tx.hash,
+            date: new Date().toLocaleString()
+        });
+
+        document.getElementById("depositUsdcAmount").value = "";
+
+        renderHistory();
+        updateAppWalletBalance();
+
+        showWalletSuccess(
+            "Deposit Successful",
+            "USDC credited to your app wallet",
+            "Wallet",
+            shortAddress(userAddress),
+            amount.toFixed(2) + " USDC"
+        );
+    } catch (error) {
+        console.error("Deposit failed:", error);
+        showValidationError(error.message || "Deposit failed");
     }
-
-    appWalletUsdcBalance += amount;
-    saveAppWallet();
-
-    addHistory({
-        type: "DEPOSIT",
-        stock: "APP WALLET",
-        qty: 1,
-        inrAmount: amount * INR_RATE,
-        usdcAmount: amount,
-        txHash: "DEMO_DEPOSIT",
-        date: new Date().toLocaleString()
-    });
-
-    document.getElementById("depositUsdcAmount").value = "";
-
-    renderHistory();
-    updateAppWalletBalance();
-    showValidationError(`Deposit successful: ${amount.toFixed(2)} USDC`);
 }
 
 async function withdrawUsdc() {
@@ -603,7 +714,14 @@ async function withdrawUsdc() {
 
         renderHistory();
         updateAppWalletBalance();
-        showValidationError(`USDC withdraw successful: ${amount.toFixed(2)} USDC`);
+
+        showWalletSuccess(
+            "USDC Withdraw Successful",
+            "USDC has been sent to your connected wallet",
+            "Wallet",
+            shortAddress(userAddress),
+            amount.toFixed(2) + " USDC"
+        );
     } catch (error) {
         console.error("USDC withdraw failed:", error);
         showValidationError(error.message || "USDC withdraw failed");
@@ -655,7 +773,13 @@ function withdrawToBank() {
     renderHistory();
     updateAppWalletBalance();
 
-    showValidationError(`Bank withdrawal successful: ₹${inrAmount.toLocaleString("en-IN")}`);
+    showWalletSuccess(
+        "Bank Withdraw Successful",
+        bankName + " payout completed successfully",
+        fullName,
+        "A/C " + accountNumber.slice(-4) + " • " + ifsc,
+        "₹" + inrAmount.toLocaleString("en-IN")
+    );
 }
 
 function renderHoldings() {
@@ -712,7 +836,7 @@ function renderHistory() {
         const color = tx.type.includes("BUY") || tx.type.includes("DEPOSIT") ? "var(--buy-green)" : "var(--sell-red)";
         const hasRealTx =
             tx.txHash &&
-            !["LOCAL_SELL_ORDER", "APP_WALLET_CREDIT", "DEMO_BANK_WITHDRAW", "DEMO_DEPOSIT"].includes(tx.txHash);
+            !["LOCAL_SELL_ORDER", "APP_WALLET_CREDIT", "DEMO_BANK_WITHDRAW", "DEMO_DEPOSIT", "APP_WALLET_BUY"].includes(tx.txHash);
 
         const explorerUrl = `https://testnet.arcscan.app/tx/${tx.txHash}`;
 
@@ -720,11 +844,13 @@ function renderHistory() {
             ? "View on Arcscan"
             : tx.txHash === "APP_WALLET_CREDIT"
                 ? "Credited to app wallet"
-                : tx.txHash === "DEMO_BANK_WITHDRAW"
-                    ? "Bank withdrawal success"
-                    : tx.txHash === "DEMO_DEPOSIT"
-                        ? "Demo deposit"
-                        : "App wallet entry";
+                : tx.txHash === "APP_WALLET_BUY"
+                    ? "Paid from app wallet"
+                    : tx.txHash === "DEMO_BANK_WITHDRAW"
+                        ? "Bank withdrawal success"
+                        : tx.txHash === "DEMO_DEPOSIT"
+                            ? "Demo deposit"
+                            : "App wallet entry";
 
         list.innerHTML += `
             <div class="watchlist-item" ${hasRealTx ? `onclick="window.open('${explorerUrl}', '_blank')"` : ""}>
